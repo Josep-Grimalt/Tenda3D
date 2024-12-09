@@ -104,19 +104,47 @@ scene.add(ambientLight);
 //points
 const points = [
   {
-    position: new THREE.Vector3(-4, -2, -5),
-    element: document.querySelector(".point-0")
+    position: new THREE.Vector3(0,0,0),
+    element: document.querySelector(".point")
   }
-]
+];
+const raycaster = new THREE.Raycaster();
+
+let sceneReady = false
+const loadingManager = new THREE.LoadingManager(
+  () => {
+    window.setTimeout(() => {
+      sceneReady = true;
+    }, 2000)
+  }
+)
 
 //animation
 const animation = () => {
 
   controls.update()
 
-  for(const point of points) {
-    const screenPos = point.position.clone();
-    screenPos.project(camera);
+  if (sceneReady) {
+    for (const point of points) {
+      const screenPos = point.position.clone();
+      screenPos.project(camera);
+
+
+      raycaster.setFromCamera(screenPos, camera);
+      const intersects = raycaster.intersectObjects(scene.children, true);
+
+      if (intersects.length === 0) {
+        point.element.classList.add("visible");
+      } else {
+        const intersectionDistance = intersects[0].distance;
+        const pointDistance = point.position.distanceTo(camera.position);
+        if (intersectionDistance < pointDistance) {
+          point.element.classList.remove("visible");
+        } else {
+          point.element.classList.add("visible");
+        }
+      }
+    }
   }
 
   renderer.render(scene, camera);
