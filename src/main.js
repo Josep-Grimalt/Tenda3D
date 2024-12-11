@@ -100,8 +100,6 @@ const mouse = new THREE.Vector2();
 
 const points = document.querySelectorAll(".point");
 const itemButtons = document.querySelectorAll(".shop");
-const returnButton = document.querySelector(".return");
-const addToCartButton = document.querySelector(".addToCart");
 
 let clickedCar = null;
 let rotateAnim = null;
@@ -116,8 +114,8 @@ window.addEventListener('click',
       clickedCar = intersects[0].object;
 
       gsap.to(camera.position, { duration: 1, x: clickedCar.parent.parent.parent.position.x, y: clickedCar.parent.parent.parent.position.y, z: 2 })
-      rotateAnim = gsap.to(clickedCar.parent.parent.parent.rotation, { duration: 15, y: clickedCar.rotation.y + Math.PI * 2});
-      rotateAnim.repeat(-1);
+      rotateAnim = gsap.to(clickedCar.parent.parent.parent.rotation, { duration: 15, y: clickedCar.rotation.y + Math.PI * 2, repeat: -1});
+      rotateAnim.restart();
       camera.lookAt(clickedCar.position);
 
       let i = 0;
@@ -128,6 +126,9 @@ window.addEventListener('click',
 
     }
   });
+
+  //return button click listener
+const returnButton = document.querySelector(".return");
 
 returnButton.addEventListener("click",
   (event) => {
@@ -145,6 +146,9 @@ returnButton.addEventListener("click",
       }
   }
 )
+
+//add to cart button click listener
+const addToCartButton = document.querySelector(".addToCart");
 
 addToCartButton.addEventListener("click",
   (event) => {
