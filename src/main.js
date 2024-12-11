@@ -1,7 +1,7 @@
 import './style.css'
 import * as THREE from "three"
 import { GLTFLoader, RGBELoader } from 'three/examples/jsm/Addons.js'
-import { OrbitControls } from 'three/examples/jsm/Addons.js';
+import gsap from 'gsap';
 
 const scene = new THREE.Scene();
 
@@ -22,16 +22,9 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-//controls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = false;
-controls.enableZoom = false;
-controls.enableRotate = false;
-controls.enablePan = true;
-
 //hdri
 const hdriLoader = new RGBELoader();
-hdriLoader.load("hdri/zwartkops_start_sunset_1k.hdr", (texture) => {
+hdriLoader.load("hdri/zwartkops_start_sunset_4k.hdr", (texture) => {
   texture.mapping = THREE.EquirectangularReflectionMapping;
   scene.background = texture;
   scene.environment = texture;
@@ -101,52 +94,49 @@ loader.load("models/Delta/scene.gltf",
 const ambientLight = new THREE.AmbientLight({ color: 0xefefef });
 scene.add(ambientLight);
 
-//points
-const points = [
-  {
-    position: new THREE.Vector3(0,0,0),
-    element: document.querySelector(".point")
-  }
-];
+//clickListener
 const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
-let sceneReady = false
-const loadingManager = new THREE.LoadingManager(
-  () => {
+const points = document.querySelectorAll(".point");
+const itemButtons = document.querySelectorAll(".shop");
+const returnButton = document.querySelector(".return");
+
+let rotationAnnimation = null;
+window.addEventListener('click',
+  (event) => {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(scene.children);
+    if (intersects.length > 0) {
+      const clickedObject = intersects[0].object;
+
+      gsap.to(camera.position, { duration: 1, x: clickedObject.parent.parent.parent.position.x, y: clickedObject.parent.parent.parent.position.y, z: 2 })
+      rotationAnnimation = gsap.to(clickedObject.parent.parent.parent.rotation, { duration: 15, y: clickedObject.rotation.y + Math.PI * 2, repeat: -1 });
+      camera.lookAt(clickedObject.position);
+
+      let i = 0;
+      for (i; i < points.length; i++) {
+        points[i].classList.remove("visible");
+        itemButtons[i].classList.add("visible");
+      }
+
+    }
+  });
+
+returnButton.addEventListener("click",
+  (event) => {
+    gsap.to(camera.position, { x: 0, y: 1, z: 5, duration: 1 });
     window.setTimeout(() => {
-      sceneReady = true;
-    }, 2000)
+      camera.lookAt(0, 0, 0);
+    }, 1000)
   }
 )
 
 //animation
 const animation = () => {
-
-  controls.update()
-
-  if (sceneReady) {
-    for (const point of points) {
-      const screenPos = point.position.clone();
-      screenPos.project(camera);
-
-
-      raycaster.setFromCamera(screenPos, camera);
-      const intersects = raycaster.intersectObjects(scene.children, true);
-
-      if (intersects.length === 0) {
-        point.element.classList.add("visible");
-      } else {
-        const intersectionDistance = intersects[0].distance;
-        const pointDistance = point.position.distanceTo(camera.position);
-        if (intersectionDistance < pointDistance) {
-          point.element.classList.remove("visible");
-        } else {
-          point.element.classList.add("visible");
-        }
-      }
-    }
-  }
-
   renderer.render(scene, camera);
   window.requestAnimationFrame(animation);
 };
