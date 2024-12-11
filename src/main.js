@@ -101,8 +101,10 @@ const mouse = new THREE.Vector2();
 const points = document.querySelectorAll(".point");
 const itemButtons = document.querySelectorAll(".shop");
 const returnButton = document.querySelector(".return");
+const addToCartButton = document.querySelector(".addToCart");
 
-let rotationAnnimation = null;
+let clickedCar = null;
+let rotateAnim = null;
 window.addEventListener('click',
   (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -111,11 +113,12 @@ window.addEventListener('click',
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children);
     if (intersects.length > 0) {
-      const clickedObject = intersects[0].object;
+      clickedCar = intersects[0].object;
 
-      gsap.to(camera.position, { duration: 1, x: clickedObject.parent.parent.parent.position.x, y: clickedObject.parent.parent.parent.position.y, z: 2 })
-      rotationAnnimation = gsap.to(clickedObject.parent.parent.parent.rotation, { duration: 15, y: clickedObject.rotation.y + Math.PI * 2, repeat: -1 });
-      camera.lookAt(clickedObject.position);
+      gsap.to(camera.position, { duration: 1, x: clickedCar.parent.parent.parent.position.x, y: clickedCar.parent.parent.parent.position.y, z: 2 })
+      rotateAnim = gsap.to(clickedCar.parent.parent.parent.rotation, { duration: 15, y: clickedCar.rotation.y + Math.PI * 2});
+      rotateAnim.repeat(-1);
+      camera.lookAt(clickedCar.position);
 
       let i = 0;
       for (i; i < points.length; i++) {
@@ -131,7 +134,21 @@ returnButton.addEventListener("click",
     gsap.to(camera.position, { x: 0, y: 1, z: 5, duration: 1 });
     window.setTimeout(() => {
       camera.lookAt(0, 0, 0);
-    }, 1000)
+    }, 1000);
+
+    rotateAnim.repeat(0);
+
+    let i = 0;
+      for (i; i < points.length; i++) {
+        points[i].classList.add("visible");
+        itemButtons[i].classList.remove("visible");
+      }
+  }
+)
+
+addToCartButton.addEventListener("click",
+  (event) => {
+    console.log("Added to cart");
   }
 )
 
