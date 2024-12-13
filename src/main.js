@@ -94,14 +94,13 @@ loader.load("models/Delta/scene.gltf",
 const ambientLight = new THREE.AmbientLight({ color: 0xefefef });
 scene.add(ambientLight);
 
-//clickListener
+//models click listener
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 const points = document.querySelectorAll(".point");
 const itemButtons = document.querySelectorAll(".shop");
 
-let clickedCar = null;
 let rotateAnim = null;
 window.addEventListener('click',
   (event) => {
@@ -111,11 +110,14 @@ window.addEventListener('click',
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children);
     if (intersects.length > 0) {
-      clickedCar = intersects[0].object;
+      const clickedCar = intersects[0].object;
 
       gsap.to(camera.position, { duration: 1, x: clickedCar.parent.parent.parent.position.x, y: clickedCar.parent.parent.parent.position.y, z: 2 })
-      rotateAnim = gsap.to(clickedCar.parent.parent.parent.rotation, { duration: 15, y: clickedCar.rotation.y + Math.PI * 2, repeat: -1});
-      rotateAnim.restart();
+      if (rotateAnim = null) {
+        rotateAnim = gsap.to(clickedCar.parent.parent.parent.rotation, { duration: 15, y: clickedCar.rotation.y + Math.PI * 2, repeat: -1 });
+      } else {
+        rotateAnim.restart();
+      }
       camera.lookAt(clickedCar.position);
 
       let i = 0;
@@ -127,7 +129,7 @@ window.addEventListener('click',
     }
   });
 
-  //return button click listener
+//return button click listener
 const returnButton = document.querySelector(".return");
 
 returnButton.addEventListener("click",
@@ -140,10 +142,10 @@ returnButton.addEventListener("click",
     rotateAnim.repeat(0);
 
     let i = 0;
-      for (i; i < points.length; i++) {
-        points[i].classList.add("visible");
-        itemButtons[i].classList.remove("visible");
-      }
+    for (i; i < points.length; i++) {
+      points[i].classList.add("visible");
+      itemButtons[i].classList.remove("visible");
+    }
   }
 )
 
