@@ -143,13 +143,13 @@ window.addEventListener('click',
           break;
         case "Subaru_Impreza_Default_OBJ042_0002":
           price.textContent = "199 €";
-          description.textContent = "One of the most condecorated models of all time." + 
-          "Experiene the powerfull boxer 4-cylinder with 310 HP AWD";
+          description.textContent = "One of the most condecorated models of all time." +
+            "Experiene the powerfull boxer 4-cylinder with 310 HP AWD";
           break;
         case "Lancia_Delta_Default_OBJ057_0002":
           price.textContent = "189 €";
           description.textContent = "The car with the most official wins in rally races." +
-          "With its AWD 215 HP inline-4 motor, you will see why it won 6 back-to-back championships";
+            "With its AWD 215 HP inline-4 motor, you will see why it won 6 back-to-back championships";
           break;
         case "body_geo_Default_OBJ068_0002":
           price.textContent = "174 €";
@@ -185,6 +185,44 @@ const addToCartButton = document.querySelector(".addToCart");
 addToCartButton.addEventListener("click",
   () => {
     console.log("Added to cart");
+  }
+)
+
+//car name hover
+const carModelDisplay = document.querySelector(".car");
+
+window.addEventListener("mousemove",
+  (event) => {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(scene.children);
+    if (intersects.length > 0) {
+      const hoveredCar = intersects[0].object;
+
+      carModelDisplay.style.opacity = 1;
+      carModelDisplay.style.left = `${event.clientX + 10}px`;
+      carModelDisplay.style.top = `${event.clientY + 10}px`;
+
+      switch (hoveredCar.name) {
+        case "Renault_R5_Default_OBJ030_0002":
+          carModelDisplay.textContent = "Renault R5 Turbo";
+          break;
+        case "Subaru_Impreza_Default_OBJ042_0002":
+          carModelDisplay.textContent = "Subaru Impreza WRX STI";
+          break;
+        case "Lancia_Delta_Default_OBJ057_0002":
+          carModelDisplay.textContent = "Lancia Delta Integrale";
+          break;
+        case "body_geo_Default_OBJ068_0002":
+          carModelDisplay.textContent = "Mitsubishi Lancer Evo VII";
+          break;
+      }
+    } else {
+      carModelDisplay.style.opacity = 0;
+    }
   }
 )
 
