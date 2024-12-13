@@ -140,3 +140,7 @@
 .shop:hover .text {
     opacity: 1;
 }
+
+.description .text {
+    width: 200px;
+}

@@ -98,10 +98,13 @@ scene.add(ambientLight);
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-const points = document.querySelectorAll(".point");
 const itemButtons = document.querySelectorAll(".shop");
+const price = document.querySelector(".price .label");
+const description = document.querySelector(".description .text");
 
 let rotateAnim = null;
+let clicked = false;
+let lastClickedCar = null;
 window.addEventListener('click',
   (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -109,23 +112,50 @@ window.addEventListener('click',
 
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children);
-    if (intersects.length > 0) {
+    if (intersects.length > 0 && !clicked) {
       const clickedCar = intersects[0].object;
+      clicked = true;
 
-      gsap.to(camera.position, { duration: 1, x: clickedCar.parent.parent.parent.position.x, y: clickedCar.parent.parent.parent.position.y, z: 2 })
-      if (rotateAnim = null) {
+      //animates the car model to get every angle out of it
+      if (lastClickedCar != clickedCar) {
         rotateAnim = gsap.to(clickedCar.parent.parent.parent.rotation, { duration: 15, y: clickedCar.rotation.y + Math.PI * 2, repeat: -1 });
+        lastClickedCar = clickedCar;
       } else {
+        rotateAnim.repeat(-1);
         rotateAnim.restart();
       }
+
+      //moves camera to a position where the clicked car is in fornt of it
+      gsap.to(camera.position, { duration: 1, x: clickedCar.parent.parent.parent.position.x, y: clickedCar.parent.parent.parent.position.y, z: 2 })
       camera.lookAt(clickedCar.position);
 
+      //adds visibility to shop buttons
       let i = 0;
-      for (i; i < points.length; i++) {
-        points[i].classList.remove("visible");
+      for (i; i < itemButtons.length; i++) {
         itemButtons[i].classList.add("visible");
       }
 
+      //modifies the details & price tags
+      switch (clickedCar.name) {
+        case "Renault_R5_Default_OBJ030_0002":
+          price.textContent = "149 €";
+          description.textContent = "The group B icon. Can you tame the inline-4 RWD 185 HP beast it hides?";
+          break;
+        case "Subaru_Impreza_Default_OBJ042_0002":
+          price.textContent = "199 €";
+          description.textContent = "One of the most condecorated models of all time." + 
+          "Experiene the powerfull boxer 4-cylinder with 310 HP AWD";
+          break;
+        case "Lancia_Delta_Default_OBJ057_0002":
+          price.textContent = "189 €";
+          description.textContent = "The car with the most official wins in rally races." +
+          "With its AWD 215 HP inline-4 motor, you will see why it won 6 back-to-back championships";
+          break;
+        case "body_geo_Default_OBJ068_0002":
+          price.textContent = "174 €";
+          description.textContent = "The jack of all trades. Try this all terrain master with a inline-4 400 HP AWD";
+          break;
+      }
     }
   });
 
@@ -133,17 +163,17 @@ window.addEventListener('click',
 const returnButton = document.querySelector(".return");
 
 returnButton.addEventListener("click",
-  (event) => {
+  () => {
     gsap.to(camera.position, { x: 0, y: 1, z: 5, duration: 1 });
     window.setTimeout(() => {
       camera.lookAt(0, 0, 0);
     }, 1000);
 
     rotateAnim.repeat(0);
+    clicked = false
 
     let i = 0;
-    for (i; i < points.length; i++) {
-      points[i].classList.add("visible");
+    for (i; i < itemButtons.length; i++) {
       itemButtons[i].classList.remove("visible");
     }
   }
@@ -153,7 +183,7 @@ returnButton.addEventListener("click",
 const addToCartButton = document.querySelector(".addToCart");
 
 addToCartButton.addEventListener("click",
-  (event) => {
+  () => {
     console.log("Added to cart");
   }
 )
